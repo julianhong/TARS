@@ -22,7 +22,7 @@ library(dplyr)
 mrns <- bind_rows(RT2015.csv, RT2016.csv)
 write.csv(unique(mrns$PatientId), file = "MRN.csv")
 rm(mrns)
-# #note that here there will be MRNs that were changed (we will fix that in rtencounter.r) but there is an MRN that is not in deduce
+# #note that here there will be MRNs that were changed (we will fix that in rtencounter.r)
 # #also had to separate things out into multiple deduce queries
 
 #now bind everything OK to coerce factors into characters
