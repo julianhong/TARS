@@ -1,6 +1,10 @@
 #vitals.R
 #will pull vitals data over the past year and convert into a categorical variable
 
+library(dplyr)
+
+vitals <- distinct(bind_rows(vitals20132014.csv, vitals20152016.csv))
+
 #initialize; select appropriate vitals
 vitals <- select(vitals, Patient.Identifier, Date.Vitals.Taken, Diastolic.BP, Systolic.BP, Weight.in.Kilograms, 
                  Body.Mass.Index, Temperature.in.Centigrade, Pulse.in.Beats.per.Minute, Pulse.Oximetry, Level.of.Pain)
@@ -22,9 +26,12 @@ rm(temp) #cleanup
 #sort by date
 relvitals <- filtvitals[with(filtvitals, order(filtvitals$Date.Vitals.Taken)),]
 relvitals <- group_by(relvitals, Patient.Identifier, course)
+#key here is be careful with plyr - make sure it's unloaded so dplyr is OK
+detach("package:plyr", unload=TRUE)
+
 relvitals <- summarize(relvitals, weightloss = (max(Weight.in.Kilograms, na.rm = TRUE) - 
                      last(na.omit(Weight.in.Kilograms)))/max(Weight.in.Kilograms, na.rm = TRUE), 
-                     last(na.omit(Body.Mass.Index)),
+                     BMI = last(na.omit(Body.Mass.Index)),
                      minsbp = min(Systolic.BP, na.rm = TRUE),
                      mindbp = min(Diastolic.BP, na.rm = TRUE),
                      maxsbp = max(Systolic.BP, na.rm = TRUE),
@@ -33,26 +40,26 @@ relvitals <- summarize(relvitals, weightloss = (max(Weight.in.Kilograms, na.rm =
                      maxpulse = max(Pulse.in.Beats.per.Minute, na.rm = TRUE),
                      minsat = min(Pulse.Oximetry, na.rm = TRUE), 
                      maxtemp = max(Temperature.in.Centigrade, na.rm = TRUE),
-                     maxpain = max(Level.of.Pain, na.rm = TRUE)) #seems like this is doing the right thing
+                     maxpain = max(Level.of.Pain, na.rm = TRUE))
 
 #now convert any inf or NaN to NA (due to NA calcs from summarize)
 relvitals <- do.call(data.frame,lapply(relvitals, function(x) replace(x, is.infinite(x),NA)))
 relvitals <- do.call(data.frame,lapply(relvitals, function(x) replace(x, is.nan(x),NA)))
 
 #we need to rejoin to the rt courses now to make sure we have all the courses
-temp <- left_join(select(rttime, Patient.Identifier, course), relvitals, by = c("Patient.Identifier", "course"))
-rm(temp) #cleanup
+relvitals <- left_join(select(rttime, Patient.Identifier, course), relvitals, by = c("Patient.Identifier", "course"))
 
 abnvitals <- select(relvitals, Patient.Identifier, course, weightloss, maxpain)
 abnvitals$hypo[relvitals$minsbp < 90 | relvitals$mindbp < 60] <- 1 #hypotension
-abnvitals$hyper[relvitals$maxsbp > 140 | relvitals$maxdbp > 90] <- 1 #hypertension
+abnvitals$hyper[relvitals$maxsbp > 129 | relvitals$maxdbp > 79] <- 1 #hypertension; updated 11/22 w new guidelines
 
 abnvitals$tachy[relvitals$maxpulse > 100] <- 1
 abnvitals$brady[relvitals$minpulse < 50] <- 1
 
-abnvitals$hypox[relvitals$minsat < 89] <- 1
+abnvitals$hypox[relvitals$minsat < 90] <- 1
 
 abnvitals$fever[relvitals$maxtemp >= 38] <- 1
 abnvitals$pain[relvitals$maxpain > 3] <- 1
 
-#everything will otherwise be a "no" and will be filled with 0s when final dataset is generated
+#replace the nas with 0s (assume normalcy)
+abnvitals[is.na(abnvitals)] <- 0
