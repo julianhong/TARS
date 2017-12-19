@@ -1,5 +1,5 @@
 #genpatient.R
-#Code to clean up the patient file (first step)
+#Code to clean up the patient file from DEDUCE (first step)
 
 #let's clean up this table
 #convert date of birth to a date

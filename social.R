@@ -4,6 +4,7 @@
 library(dplyr)
 
 #of note, a lot of missing data is present in these files
+social <- bind_rows(socialhistory20132014.csv, socialhistory20152016.csv)
 
 #reformat the dates
 social$Date.Current.Social.History.Reported <- as.Date(social$Date.Current.Social.History.Reported,
