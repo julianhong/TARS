@@ -1,0 +1,76 @@
+#combine.R
+#combines all data; final data prep step
+
+library(dplyr)
+
+###combining data!
+finalset <- NULL
+finalset <- rtcourse
+
+#calc the age
+finalset$age <- as.numeric((finalset$start - finalset$Patient.Date.of.Birth)/365.25)
+
+#need to filter the final set encounters by age (takes us to 9048 courses)
+finalset <- filter(finalset, age >= 18)
+
+#add on the zipcode
+finalset <- left_join(finalset, pataddressinfo, by = c("Patient.Identifier"))
+
+#add on admission data
+modadmit <- ungroup(modadmit)
+finalset <- left_join(finalset, modadmit, by = c("Patient.Identifier", "course"))
+
+#add on ED data
+moded <- ungroup(moded)
+finalset <- left_join(finalset, moded, by = c("Patient.Identifier", "course"))
+
+#make an admission or ED visit field
+finalset$adm_ed <- 0 #initialize
+finalset$adm_ed[finalset$ed == 1 | finalset$admit == 1] <- 1
+
+#add concurrent and recent systemic therapy as classes and agents
+finalset <- left_join(finalset, anyneo, by = c("Patient.Identifier", "course"))
+finalset <- left_join(finalset, widerecagent, by = c("Patient.Identifier", "course"))
+finalset <- left_join(finalset, wideconagent, by = c("Patient.Identifier", "course"))
+finalset <- left_join(finalset, widerecclass, by = c("Patient.Identifier", "course"))
+finalset <- left_join(finalset, wideconclass, by = c("Patient.Identifier", "course"))
+
+#add on the PMH data from the wide PMH file
+finalset <- left_join(finalset, widepmhsubch, by = c("Patient.Identifier", "course")) #code for subchapters 270
+
+#add on med classes concurrent and recent
+finalset <- left_join(finalset, rxmixclasses, by = c("Patient.Identifier", "course")) #296 classes
+finalset <- left_join(finalset, recrxmixclasses, by = c("Patient.Identifier", "course")) #299 classes
+
+#add on abnormal labs and labs
+finalset <- left_join(finalset, wideabnlabs, by = c("Patient.Identifier", "course")) #755
+
+#add on icd/cpt procedure codes
+finalset <- left_join(finalset, wideprocicd, by = c("Patient.Identifier", "course")) #324
+finalset <- left_join(finalset, widecpt, by = c("Patient.Identifier", "course")) #5749
+
+#add on social history
+finalset <- left_join(finalset, social, by = c("Patient.Identifier", "course"))
+
+#add on relevant vitals
+finalset <- left_join(finalset, abnvitals, by = c("Patient.Identifier", "course"))
+
+#get rid of the column all NAs
+finalset <- finalset[colSums(!is.na(finalset)) > 0]
+
+#if you need to find any missing values
+#M <- sapply(finalset, function(x) sum(is.na(x))); M[M>0]
+
+#fill in the nas
+finalset[is.na(finalset)] <- 0
+
+#eliminate patients who were not discharged before the end of their RT
+finalset <- filter(finalset, notdisch == 0)
+finalset <- select(finalset, -notdisch) #then remove column
+
+#and exclude eye plaques 8462 courses (there aren't actually any)
+finalset <- filter(finalset, !(`coursedx_Malignant neoplasm of eye and adnexa` == 1 & brachy == 1))
+
+# #let's write the finalset file out to csv for saving
+# setwd("U:/TARS/")
+# write.csv(finalset, file = "finalset.csv")
