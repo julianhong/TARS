@@ -145,9 +145,9 @@ xgparams <- list(booster = "gbtree", objective = "binary:logistic", eta=0.01, ga
 
 #hyperparameter search
 #make sure to save before running this
-searchGridSubCol <- expand.grid(subsample = c(0.25, 0.5, 0.75, 1),
+searchGridSubCol <- expand.grid(subsample = c(0.5, 0.75, 1),
                                 colsample_bytree = c(0.4, 0.6, 0.8, 1))
-ntrees <- 500
+ntrees <- 1000
 rm(aucHyperparameters, xgboostModelCV)
 set.seed(313)
 
@@ -181,6 +181,7 @@ aucHyperparameters <- apply(searchGridSubCol, 1, function(parameterList){
   
   #Save auc of the last iteration
   auc <- tail(xgboostModelCV$evaluation_log$test_auc_mean, 1)
+  gc()
   
   return(c(auc, currentSubsampleRate, currentColsampleRate))
   
@@ -190,9 +191,9 @@ library(ggplot2)
 # Basic scatter plot
 ggplot(as.data.frame(t(aucHyperparameters)), aes(x=paste(as.character(V2), as.character(V3)), y=V1, "")) + geom_point()
 
-#0.75 subsample and 1 were best performers so we can use that to make a final model
+#0.75 subsample and 0.8 were best performers so we can use that to make a final model
 tunedsub = 0.75
-tunedcolsamp = 1
+tunedcolsamp = 0.8
 
 set.seed(220)
 # fit the model with the tuned parameters
@@ -250,9 +251,19 @@ xgb.plot.importance (importance_matrix = prettymat[1:10], xlab = "Relative impor
 prettymat <- prettymat[1:10]
 prettymat$Feature <- as.factor(prettymat$Feature)
 prettymat$Feature <- factor(prettymat$Feature, levels = prettymat$Feature[(order(prettymat$Gain))])
-prettymat$`Data type` <- c("Treatment/disease", "Pre-treatment encounters", "Pre-treatment vitals", 
-                      "Patient characteristics", "Pre-treatment labs", "Treatment/disease", "Pre-treatment vitals", 
-                      "Pre-treatment encounters", "Pre-treatment encounters", "Treatment/disease")
+
+#we can code the variable type based on the feature
+prettymat$`Data type`[prettymat$Feature == "Number of radiation treatments"] <- "Treatment/disease"
+prettymat$`Data type`[prettymat$Feature == "Time since most recent ED visit"] <- "Pre-treatment encounters"
+prettymat$`Data type`[prettymat$Feature == "Weight loss"] <- "Pre-treatment vitals"
+prettymat$`Data type`[prettymat$Feature == "Age"] <- "Patient characteristics"
+prettymat$`Data type`[prettymat$Feature == "Abnormal albumin"] <- "Pre-treatment labs"
+prettymat$`Data type`[prettymat$Feature == "Malignant neoplasm of breast"] <- "Treatment/disease"
+prettymat$`Data type`[prettymat$Feature == "Pain score 4+"] <- "Pre-treatment vitals"
+prettymat$`Data type`[prettymat$Feature == "Time since last admission"] <- "Pre-treatment encounters"
+prettymat$`Data type`[prettymat$Feature == "Number of days admitted"] <- "Pre-treatment encounters"
+prettymat$`Data type`[prettymat$Feature == "Concurrent systemic therapy"] <- "Treatment/disease"
+
 library(ggplot2)
 impplot <- ggplot(prettymat, aes(Feature, Gain, fill = `Data type`)) + geom_col() + coord_flip()
 impplot + scale_fill_manual(values = c("firebrick", "forestgreen", "darkorchid3", "goldenrod", "dodgerblue4")) +
@@ -289,9 +300,9 @@ auc(rocgtbtest, min = 0, max = 1)
 
 #compute the confusion matrix for the test set using cancer xgbcheck
 #calculate the prediction based on the cut-off
-#Youden 0.070
-xgbcheck$predictclass[xgbcheck$prediction > 0.070] <- "X1"
-xgbcheck$predictclass[xgbcheck$prediction <+ 0.070] <- "X0"
+youden <- 0.087
+xgbcheck$predictclass[xgbcheck$prediction > youden] <- "X1"
+xgbcheck$predictclass[xgbcheck$prediction <+ youden] <- "X0"
 confusionMatrix(xgbcheck$predictclass, xgbcheck$value, positive = "X1")
 
 
