@@ -5,7 +5,7 @@
 #Patient identifier, plaintext name for readability, ICD-10 and an earliest date
 
 library(dplyr)
-problemlists <- bind_rows(problemlists20132014.csv, problemlists20152016.csv)
+problemlists <- problemlists.csv
 
 #let's start with problemlists (populate this with all encounter problemlists)
 problemlists <- select(problemlists, Patient.Identifier, Problem.Name, 
@@ -101,7 +101,7 @@ rm(temp) #cleanup
 
 ##############
 #now let's work on patientdiagnoses
-patientdiagnoses <- bind_rows(patientdiagnoses20132014.csv, patientdiagnoses20152016.csv)
+patientdiagnoses <- patientdiagnoses.csv
 
 patientdiagnoses <- select(patientdiagnoses, Patient.Identifier, Diagnosis.Name, 
                            ICD.Diagnosis.Code, ICD.Diagnosis.Code.Set, Diagnosis.Date)
