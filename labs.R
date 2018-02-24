@@ -2,7 +2,7 @@
 #process lab values, identify abnormal labs
 
 library(dplyr)
-labs <- distinct(bind_rows(patientlabs20132014.csv, patientlabs20152016.csv))
+labs <- patientlabs.csv
 
 #now reformat the dates
 labs$Specimen.Collection.Date <- as.Date(labs$Specimen.Collection.Date, "%m/%d/%Y %H:%M:%S")
