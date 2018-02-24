@@ -1,7 +1,7 @@
 #proc.r
 #sort out procedures and generate a wide table for procedure history
 
-patientproc <- distinct(bind_rows(patientprocedures20132014.csv, patientprocedures20152016.csv))
+patientproc <- patientprocedures.csv
 
 #convert the dates
 patientproc$Procedure.Date <- as.Date(patientproc$Procedure.Date , "%m/%d/%Y %H:%M:%S")
@@ -29,3 +29,6 @@ wideprocicd <- spread(wideprocicd, AHRQ.Procedure.Level.3.Text, present)
 wideprocicd[is.na(wideprocicd)] <- 0 #need to fill in the NAs
 
 rm(temp) #cleanup
+
+names(wideprocicd)[3:length(names(wideprocicd))] <- 
+  paste0("proc_", names(wideprocicd)[3:length(names(wideprocicd))])
