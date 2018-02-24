@@ -52,7 +52,7 @@ temp2$lastyrdays <- temp2$lastyear * temp2$Total.Hospital.LOS.in.days
 
 #make a list of reasons for admission for reference
 temp <- filter(temp2, admit == 1)
-reasonforadmit <- table(temp$MS.DRG.Description)
+reasonforadmit <- temp
 
 #now consolidate for each course
 temp2 <- group_by(temp2, Patient.Identifier, course)
