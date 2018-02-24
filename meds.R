@@ -1,6 +1,8 @@
 #meds.R
 #need to consoldiate the med rec and the prescriptions and pull systemic therapy information
 
+patientmeds <- patientmedications.csv
+
 #Pull all the unique drug names
 drugnames <- unique(patientmeds$Medication.Name)
 write.csv(drugnames, file = "mednames.csv")
@@ -15,8 +17,6 @@ rxmix <- read.delim("rxmix.text", header = FALSE, sep = "|", quote = "\"",
 #original drug name is in the V4 column, recoded name is in V14, class is in V22 
 library(dplyr)
 rxdict <- dplyr::select(rxmix, Medication.Name = V4, newname = V14, class = V22)
-
-patientmeds <- patientmedications.csv
 
 #left join the med classes with the current med list
 patientmeds<- left_join(patientmeds, rxdict, by = "Medication.Name")
