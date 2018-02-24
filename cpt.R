@@ -1,7 +1,7 @@
 #cpt.r
 #import cpt codes
 
-patientcpt <- bind_rows(patientcptprocedures20132014.csv, patientcptprocedures20152016.csv)
+patientcpt <- patientcptprocedures.csv
 
 #convert the dates
 patientcpt$CPT.Procedure.Date <- as.Date(patientcpt$CPT.Procedure.Date , "%m/%d/%Y %H:%M:%S")
@@ -27,3 +27,7 @@ library(tidyr)
 widecpt$present <- 1
 widecpt <- spread(widecpt, CPT.Short.Description, present)
 widecpt[is.na(widecpt)] <- 0 #need to fill in the NAs
+
+
+names(widecpt)[3:length(names(widecpt))] <- 
+  paste0("cpt_", names(widecpt)[3:length(names(widecpt))])
