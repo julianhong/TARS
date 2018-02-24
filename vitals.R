@@ -3,7 +3,7 @@
 
 library(dplyr)
 
-vitals <- distinct(bind_rows(vitals20132014.csv, vitals20152016.csv))
+vitals <- vitals.csv
 
 #initialize; select appropriate vitals
 vitals <- select(vitals, Patient.Identifier, Date.Vitals.Taken, Diastolic.BP, Systolic.BP, Weight.in.Kilograms, 
