@@ -16,8 +16,7 @@ rxmix <- read.delim("rxmix.text", header = FALSE, sep = "|", quote = "\"",
 library(dplyr)
 rxdict <- dplyr::select(rxmix, Medication.Name = V4, newname = V14, class = V22)
 
-#it currently looks like about 4000 drugs weren't classified
-patientmeds <- distinct(bind_rows(patientmedications20132014.csv, patientmedications20152016.csv))
+patientmeds <- patientmedications.csv
 
 #left join the med classes with the current med list
 patientmeds<- left_join(patientmeds, rxdict, by = "Medication.Name")
@@ -95,6 +94,16 @@ widerecagent[is.na(widerecagent)] <- 0
 wideconclass[is.na(wideconclass)] <- 0
 widerecclass[is.na(widerecclass)] <- 0
 
+#finish up by adding name prefixes
+names(wideconagent)[3:length(names(wideconagent))] <- 
+  paste0("con_", names(wideconagent)[3:length(names(wideconagent))])
+names(widerecagent)[3:length(names(widerecagent))] <- 
+  paste0("rec_", names(widerecagent)[3:length(names(widerecagent))])
+names(wideconclass)[3:length(names(wideconclass))] <- 
+  paste0("con_", names(wideconclass)[3:length(names(wideconclass))])
+names(widerecclass)[3:length(names(widerecclass))] <- 
+  paste0("rec_", names(widerecclass)[3:length(names(widerecclass))])
+
 #and let's make an any agent concurrent or recent table
 anyneo <- antineo
 anyneo$recent <- 1*anyneo$recent
@@ -127,6 +136,10 @@ recrxmixclasses <- spread(temp, class, taking)
 recrxmixclasses[is.na(recrxmixclasses)] <- 0
 rm(temp) #cleanup
 
+#quick name prefix
+names(recrxmixclasses)[3:length(names(recrxmixclasses))] <- 
+  paste0("rec_", names(recrxmixclasses)[3:length(names(recrxmixclasses))])
+
 ##now do the current meds
 temp <- select(curmeds, Patient.Identifier, course, class)
 #drop the duplicates and blanks
@@ -140,3 +153,6 @@ library(tidyr)
 rxmixclasses <- spread(temp, class, taking)
 rxmixclasses[is.na(rxmixclasses)] <- 0
 rm(temp) #cleanup
+
+names(rxmixclasses)[3:length(names(rxmixclasses))] <- 
+  paste0("cur_", names(rxmixclasses)[3:length(names(rxmixclasses))])
