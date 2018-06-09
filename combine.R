@@ -55,6 +55,9 @@ finalset <- left_join(finalset, social, by = c("Patient.Identifier", "course"))
 #add on relevant vitals
 finalset <- left_join(finalset, abnvitals, by = c("Patient.Identifier", "course"))
 
+#add on EHR data evaluation
+#finalset <- left_join(finalset, priorenc, by = c("Patient.Identifier", "course"))
+
 #get rid of the column all NAs
 finalset <- finalset[colSums(!is.na(finalset)) > 0]
 
@@ -74,3 +77,4 @@ names(finalset) <- make.names(names(finalset), unique = TRUE)
 #let's write the finalset file out to csv for saving
 setwd("U:/TARS/")
 write.csv(finalset, file = "finalset.csv")
+save(finalset, file="finalset.Rda")
