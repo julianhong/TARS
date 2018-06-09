@@ -107,6 +107,7 @@ plot(rocrftest, main="Random forest test ROC curve", print.auc=TRUE,
      print.thres = "best", print.thres.best.method="youden") #plot best
 
 auc(rocrftest, min = 0, max = 1)
+ci(rocrftest)
 ############################################################################
 
 ####lasso
@@ -134,6 +135,7 @@ roclassotest <- roc(factor(1 * (lassotest$value=="X1")), lassotest$prediction[,1
 plot(roclassotest, main="LASSO test ROC curve", print.auc=TRUE, xaxs="i", yaxs="i") #black
 plot(roclassotest, main="LASSO test ROC curve", print.auc=TRUE,
      print.thres = "best", print.thres.best.method="topleft") #plot best
+ci(roclassotest)
 ############################################################################
 
 ####svm
@@ -175,6 +177,7 @@ plot(rocsvmtest, main="Support vector machine test ROC curve", print.auc=TRUE,
      print.thres = "best", print.thres.best.method="youden") #plot best
 #what's the AUC?
 auc(rocsvmtest, min = 0, max = 1)
+ci(rocsvmtest)
 ############################################################################
 
 ####xgboost
@@ -299,7 +302,7 @@ prettymat$Feature[prettymat$Feature == "planneddose"] <- "Planned total radiatio
 prettymat$Feature[prettymat$Feature == "lasted"] <- "Time since most recent ED visit"
 prettymat$Feature[prettymat$Feature == "weightloss"] <- "Weight loss"
 prettymat$Feature[prettymat$Feature == "age"] <- "Age"
-prettymat$Feature[prettymat$Feature == "srssbrt"] <- "Stereotactic radiosurgery or stereotactic body radiation therapy"
+prettymat$Feature[prettymat$Feature == "srssbrt"] <- "Stereotactic radiosurgery or\nstereotactic body radiation therapy"
 prettymat$Feature[prettymat$Feature == "numyeared"] <- "Number of ED encounters past year"
 prettymat$Feature[prettymat$Feature == "ALB"] <- "Abnormal albumin"
 prettymat$Feature[prettymat$Feature == "lastadmit"] <- "Time since last admission"
@@ -318,7 +321,7 @@ prettymat$`Data type`[prettymat$Feature == "Planned total radiation dose"] <- "T
 prettymat$`Data type`[prettymat$Feature == "Time since most recent ED visit"] <- "Pre-treatment encounters"
 prettymat$`Data type`[prettymat$Feature == "Weight loss"] <- "Pre-treatment vitals"
 prettymat$`Data type`[prettymat$Feature == "Age"] <- "Patient characteristics"
-prettymat$`Data type`[prettymat$Feature == "Stereotactic radiosurgery or stereotactic body radiation therapy"] <- "Treatment/disease"
+prettymat$`Data type`[prettymat$Feature == "Stereotactic radiosurgery or\nstereotactic body radiation therapy"] <- "Treatment/disease"
 prettymat$`Data type`[prettymat$Feature == "Number of ED encounters past year"] <- "Pre-treatment encounters"
 prettymat$`Data type`[prettymat$Feature == "Abnormal albumin"] <- "Pre-treatment labs"
 prettymat$`Data type`[prettymat$Feature == "Time since last admission"] <- "Pre-treatment encounters"
@@ -358,6 +361,7 @@ plot(rocgtbtest, main="Gradient tree boosting test ROC curve", print.auc=TRUE,
      print.thres = "best", print.thres.best.method="youden") #plot best
 #what's the AUC?
 auc(rocgtbtest, min = 0, max = 1)
+ci(rocgtbtest)
 
 
 #compute the confusion matrix for the test set using xgbcheck
@@ -416,6 +420,8 @@ par(mfrow=c(1,1))
 library(pROC)
 cancerrocgtbtest <- roc(factor(1 * (cancerxgbcheck$value=="X1")), cancerxgbcheck$prediction)
 plot(cancerrocgtbtest, main="Cancer data only gradient tree boosting test ROC curve", print.auc=TRUE, xaxs="i", yaxs="i") #black
+ci(cancerrocgtbtest)
+
 ############################################################################
 
 #######plot all of the ROC curves; need to adjust the size of the plot window here and rerender the plot (perfect at 548 pixels)
