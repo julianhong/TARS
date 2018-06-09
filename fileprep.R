@@ -28,6 +28,7 @@ rm(mrns)
 #now bind everything OK to coerce factors into characters
 #most of the combined files will come together in the individual scripts
 patient <- distinct(bind_rows(patient20132014.csv, patient20152016.csv, patientadd.csv)) #using original keys due to MRN changes
+#verified no duplicates
 encounter <- encounter.csv
 #need to fix a 20+ to a number for smoking
 socialhistory.csv$Number.of.Years.Used.Tobacco[socialhistory.csv$Number.of.Years.Used.Tobacco == 
