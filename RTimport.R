@@ -15,6 +15,7 @@ ariareport <- ariareport.csv
 #manual review to get a final list
 
 #manage the changedMrns
+library(dplyr)
 changedMrns <- distinct(bind_rows(changedMrns20132014.csv, changedMrns20152016.csv))
 names(changedMrns)[1] <- "PatientId"
 
@@ -57,13 +58,14 @@ ariareport <- select(ungroup(ariareport), -New.MRN, -PatientId)
 #let's do this as a join
 library(dplyr)
 
-allRT <- bind_rows(RT2013.csv, RT2014.csv, RT2015.csv, RT2016.csv, RTadd.csv) #146413 entries
+allRT <- bind_rows(RT2013.csv, RT2014.csv, RT2015.csv, RT2016.csv, RTadd.csv) #146415 entries
 
 edgefx <- bind_rows(RT2012.csv, RT2017.csv) #inclusion is treatment from 2013-2016; some  may start/finish before/after
 temp <- unique(allRT$PatientId) #pull all of our patients in the cohort
 temp2 <- filter(edgefx, is.element(PatientId, temp)) #pull out the extra fractions
 
-allRT <- bind_rows(allRT, temp2) #should total 151460 (all distinct)
+#the extra fractions may represent discrete treatments, but we will figure this out after we tabulate courses
+allRT <- bind_rows(allRT, temp2) #should total 151462 (all distinct)
 rm(temp, temp2)
 
 allRT <- left_join(allRT, changedMrns)
@@ -82,14 +84,14 @@ temp <- left_join(allRT, select(patient, Duke.MRN, Patient.Identifier), by = "Du
 #to make sure things match (verified by JH)
 #lets just drop the Duke MRN now that we're recoded
 
-#one missing MRN which will be dropped
+#one missing MRN which will be dropped (would not be included due to exclusion criteria anyway)
 sum(is.na(temp$Patient.Identifier))
 temp <- na.omit(temp)
 
-allRT <- temp #now 151458
+allRT <- temp #now 151460
 rm(temp)
 
-#remove any non-RT codes; 151344
+#remove any non-RT codes; 151346
 allRT <-
   allRT %>%
   filter(regexpr("marker", allRT$ProcedureCodeDescription) == -1 &
@@ -130,7 +132,7 @@ allRT$tsi[is.na(allRT$tsi)] <- 0
 
 RTencounter <- 
   ariareport %>%
-  left_join(allRT, by = "Duke.MRN") #184903 entries here
+  left_join(allRT, by = "Duke.MRN") #184909 entries here
 
 #if the date is within the course, make a course column that is equal to the course id as a label
 #note that there were a couple of discrepancies on date by a day that had to be manually fixed in the RT file
