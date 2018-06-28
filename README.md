@@ -2,7 +2,8 @@
 
 NOT FOR CLINICAL USE
 
-Preliminary code.
+For research use only.
 
-Please cite as
-Julian Hong. (2018, February 25). julianhong/TARS: Manuscript review (Version v0.11-beta.2). Zenodo. http://doi.org/10.5281/zenodo.1133330
+Please cite as:
+
+Hong JC, Niedzwiecki D, Palta M, Tenenbaum JD. Predicting toxicity in radiation and chemoradiation: An internally validated pre-treatment machine learning algorithm for emergency visits and hospital admissions. JCO Clin Cancer Inform. Accepted 2018 Jun 28.
