@@ -1,3 +1,7 @@
+#Copyright (C) Duke University/Julian Hong 2017
+#GNU General Public License v2.0
+#Please see LICENSE and README.md 
+
 #combine.R
 #combines all data; final data prep step
 
@@ -36,7 +40,7 @@ finalset <- left_join(finalset, widerecclass, by = c("Patient.Identifier", "cour
 finalset <- left_join(finalset, wideconclass, by = c("Patient.Identifier", "course"))
 
 #add on the PMH data from the wide PMH file
-finalset <- left_join(finalset, widepmhsubch, by = c("Patient.Identifier", "course")) #code for subchapters 
+finalset <- left_join(finalset, widepmhsubch, by = c("Patient.Identifier", "course")) #code for subchapters
 
 #add on med classes concurrent and recent
 finalset <- left_join(finalset, rxmixclasses, by = c("Patient.Identifier", "course")) # 295 classes

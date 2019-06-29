@@ -1,3 +1,7 @@
+#Copyright (C) Duke University/Julian Hong 2017
+#GNU General Public License v2.0
+#Please see LICENSE and README.md 
+
 #social.R
 #pull data from the social history files
 
@@ -19,7 +23,7 @@ social$present <- social$Date.Current.Social.History.Reported <= social$start
 social <- filter(social, present == TRUE)
 
 #pull variables of interest
-social <- select(social, Patient.Identifier, course, Most.Recently.Reported.Tobacco.Use, 
+social <- select(social, Patient.Identifier, course, Most.Recently.Reported.Tobacco.Use,
                  Most.Recently.Reported.Alcohol.Use, Most.Recently.Reported.Illicit.Drug.Use,
                  Currently.Sexually.Active)
 social <- distinct(social)

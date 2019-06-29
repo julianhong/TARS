@@ -1,3 +1,7 @@
+#Copyright (C) Duke University/Julian Hong 2017
+#GNU General Public License v2.0
+#Please see LICENSE and README.md 
+
 #labs.r
 #process lab values, identify abnormal labs
 

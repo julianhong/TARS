@@ -1,3 +1,7 @@
+#Copyright (C) Duke University/Julian Hong 2017
+#GNU General Public License v2.0
+#Please see LICENSE and README.md 
+
 #manage problem list and prior diagnoses
 #there are two sources for past medical history; the problem list and prior ICD diagnoses
 
@@ -8,7 +12,7 @@ library(dplyr)
 problemlists <- problemlists.csv
 
 #let's start with problemlists (populate this with all encounter problemlists)
-problemlists <- select(problemlists, Patient.Identifier, Problem.Name, 
+problemlists <- select(problemlists, Patient.Identifier, Problem.Name,
                        Current.List.of.ICD10.Diagnosis.Codes, Date.Problem.was.Noted,
                        Date.Problem.was.Entered) #there are two dates here
 
@@ -29,7 +33,7 @@ library(icd)
 library(magrittr)
 
 #process the factor into a string
-problemlists$Current.List.of.ICD10.Diagnosis.Codes<- 
+problemlists$Current.List.of.ICD10.Diagnosis.Codes<-
   as.character(problemlists$Current.List.of.ICD10.Diagnosis.Codes)
 #then separate out by comma and collapse the lists into vector form
 temp <- do.call("rbind", strsplit(problemlists$Current.List.of.ICD10.Diagnosis.Codes, ", "))
@@ -40,7 +44,7 @@ problemlists <- bind_cols(problemlists, as.data.frame(temp))
 rm(temp) #cleanup
 
 #then drop out any unnecessary columns
-problemlists <- select(problemlists, -Problem.Name, -Date.Problem.was.Noted, 
+problemlists <- select(problemlists, -Problem.Name, -Date.Problem.was.Noted,
                        -Date.Problem.was.Entered, -Current.List.of.ICD10.Diagnosis.Codes)
 
 #now we want to make sure the problem was added to the history PRIOR to RT start
@@ -67,7 +71,7 @@ problemlists$Current.List.of.ICD10.Diagnosis.Codes4 <- as.character(problemlists
 longproblist<- gather(problemlists, "icdfield", "coicd10", 2:5) #the ICD columns
 
 #get rid of duplicates to improve processing time
-longproblist <- 
+longproblist <-
   longproblist %>%
   select(-icdfield) %>%
   distinct()
@@ -103,7 +107,7 @@ rm(temp) #cleanup
 #now let's work on patientdiagnoses
 patientdiagnoses <- patientdiagnoses.csv
 
-patientdiagnoses <- select(patientdiagnoses, Patient.Identifier, Diagnosis.Name, 
+patientdiagnoses <- select(patientdiagnoses, Patient.Identifier, Diagnosis.Name,
                            ICD.Diagnosis.Code, ICD.Diagnosis.Code.Set, Diagnosis.Date)
 #reformat the date
 patientdiagnoses$Diagnosis.Date <- as.Date(patientdiagnoses$Diagnosis.Date, "%m/%d/%Y %H:%M:%S")
@@ -190,7 +194,7 @@ temp <- left_join(temp, temptoicd10, by = "conodec")
 
 #there are also a handful of codes that instead ofa 0 you can stick a 1 in for the last digit that are 4 or 5
 temp$conodec[(nchar(temp$conodec) >3 & is.na(temp$coicd10))] <-
-  paste(substr(temp$conodec[(nchar(temp$conodec) > 3 & is.na(temp$coicd10))], 1, 
+  paste(substr(temp$conodec[(nchar(temp$conodec) > 3 & is.na(temp$coicd10))], 1,
          nchar(temp$conodec[(nchar(temp$conodec) > 3 & is.na(temp$coicd10))])-1),"9", sep = "")
 
 #then rejoin
@@ -226,7 +230,7 @@ rm(temp)
 #there are some that are basically not mapped (E codes it seems); we'll just go ahead and make these NAs
 ptdiag9icd$explain[ptdiag9icd$explain == "character(0)"] <- NA
 
- 
+
 #now do this with the key
 #have to rename the subchapter field here
 temp <- rename(icd10mapjh, icdsubch = sub_chapter, cothree_digit = three_digit)
@@ -237,12 +241,12 @@ rm(temp)
 
 
 #bring it all together
-pmhicd <- distinct(bind_rows(select(problemicd, Patient.Identifier, course, explain), 
-                             select(ptdiag9icd, Patient.Identifier, course, explain), 
+pmhicd <- distinct(bind_rows(select(problemicd, Patient.Identifier, course, explain),
+                             select(ptdiag9icd, Patient.Identifier, course, explain),
                              select(ptdiag10icd, Patient.Identifier, course, explain)))
 #ditto for the subchapter form
-pmhsubch <- distinct(bind_rows(select(problemsubch, Patient.Identifier, course, icdsubch), 
-                               select(ptdiagsubch9, Patient.Identifier, course, icdsubch), 
+pmhsubch <- distinct(bind_rows(select(problemsubch, Patient.Identifier, course, icdsubch),
+                               select(ptdiagsubch9, Patient.Identifier, course, icdsubch),
                                select(ptdiagsubch10, Patient.Identifier, course, icdsubch)))
 
 #get rid of NAs in pmhicd

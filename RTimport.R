@@ -1,3 +1,7 @@
+#Copyright (C) Duke University/Julian Hong 2017
+#GNU General Public License v2.0
+#Please see LICENSE and README.md 
+
 #RTimport.R
 #imports Aria reports with original RT plan data
 
@@ -24,7 +28,7 @@ ariareport$start <- as.Date(ariareport$X1st.Day, "%m/%d/%Y %H:%M")
 ariareport$end <- as.Date(ariareport$Last.Day, "%m/%d/%Y %H:%M")
 
 library(dplyr)
-ariareport <- 
+ariareport <-
   ariareport %>%
   filter(Machine.Full.Name != "TBCary" & Machine.Full.Name != "TBMacon" &
            Machine.Full.Name != "2100DRH" &
@@ -38,7 +42,7 @@ ariareport <-
   select(-X1st.Day, -Last.Day) %>%
   group_by(PatientId, Course.ID) %>%
   summarize(numplans = n(), planneddose = sum(Planned.Dose), plannedfx = sum(Planned.Fractions), #cumulative for all sites/fields
-            fx = sum(Delivered.Fractions), dose = sum(Delivered.Dose), revisions = max(Revision..), 
+            fx = sum(Delivered.Fractions), dose = sum(Delivered.Dose), revisions = max(Revision..),
             start = min(start), end = max(end)) %>%
   filter(end > as.Date("2012-12-31") & start < as.Date("2017-01-01")) #need to filter time window
 
@@ -80,7 +84,7 @@ allRT$ToDateOfService <- as.Date(allRT$ToDateOfService, "%m/%d/%Y")
 #bring in the patient identifier now
 names(allRT)[1] <- "Duke.MRN"
 temp <- left_join(allRT, select(patient, Duke.MRN, Patient.Identifier), by = "Duke.MRN") #manually review
-#than those used in DEDUCE so sometimes instead of updating you actually have to backdate to an older MRN 
+#than those used in DEDUCE so sometimes instead of updating you actually have to backdate to an older MRN
 #to make sure things match (verified by JH)
 #lets just drop the Duke MRN now that we're recoded
 
@@ -130,7 +134,7 @@ allRT$tsi[is.na(allRT$tsi)] <- 0
 #we can do this by matching the course ID
 #the NAs post join are all either coverage treatments from satelllites or brachy (which are excluded)
 
-RTencounter <- 
+RTencounter <-
   ariareport %>%
   left_join(allRT, by = "Duke.MRN") #184909 entries here
 
@@ -145,8 +149,8 @@ RTencounter <- filter(RTencounter, !is.na(course))
 #find out max diagnoses
 i <- max(sapply(strsplit(as.character(RTencounter$DiagnosisId), ' ,'), length))
 library(tidyr)
-temp <- 
-  RTencounter %>% 
+temp <-
+  RTencounter %>%
   #separate it out but you will get a warning about too few
   separate(DiagnosisId, paste0("icd", 1:i), sep = " ,") %>%
   group_by(Duke.MRN, ToDateOfService) %>%
@@ -154,7 +158,7 @@ temp <-
   gather("icdnum", "icd", icd1, icd2, icd3, icd4)
 
 #we can make a course diagnosis table with the course # and the diagnoses
-coursedx <- 
+coursedx <-
   temp %>% group_by(Patient.Identifier, course) %>%
   distinct(Patient.Identifier, course, icd) %>%
   filter(!(is.na(icd) | icd == "")) %>% #clean up blanks/NA
@@ -219,7 +223,7 @@ icd10mapdxjh <-rename(distinct(select(icd10cm2016, code, short_desc)), icd10 = c
 
 #need to correct C79 which is miscoded
 icd10mapjh$sub_chapter <- as.character(icd10mapjh$sub_chapter)
-icd10mapjh$sub_chapter[icd10mapjh$three_digit == "C79"] <- 
+icd10mapjh$sub_chapter[icd10mapjh$three_digit == "C79"] <-
   "Secondary malignant neoplasm of other and unspecified sites"
 icd10mapjh$sub_chapter <- as.factor(icd10mapjh$sub_chapter)
 
@@ -253,7 +257,7 @@ widecoursedx <- dcast(temp2, Patient.Identifier + course ~ dx)
 widecoursedx[is.na(widecoursedx)] <- 0
 rm(temp1, temp2)
 #add prefix since we have other dx-based columns
-names(widecoursedx)[3:length(names(widecoursedx))] <- 
+names(widecoursedx)[3:length(names(widecoursedx))] <-
   paste0("coursedx_", names(widecoursedx)[3:length(names(widecoursedx))])
 
 #we also want to do the same thing with subchapters
@@ -271,7 +275,7 @@ widecoursesubch <- dcast(temp2, Patient.Identifier + course ~ sub_chapter)
 widecoursesubch[is.na(widecoursesubch)] <- 0
 rm(temp1, temp2)
 #add prefix since we have other dx-based columns
-names(widecoursesubch)[3:length(names(widecoursesubch))] <- 
+names(widecoursesubch)[3:length(names(widecoursesubch))] <-
   paste0("coursesub_", names(widecoursesubch)[3:length(names(widecoursesubch))])
 
 
@@ -291,8 +295,8 @@ rm(temp)
 #TBI have planned admissions for transplant
 #brachy for homogeneity and due to physics data
 #takes us to 8653 courses
-rttime <- 
-  rttime %>% 
+rttime <-
+  rttime %>%
   filter(tbi != 1 & brachy != 1) %>%
   select(-numcharge) #used billedfx to evaluate consistency; no longer need this
 

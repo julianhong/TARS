@@ -1,3 +1,7 @@
+#Copyright (C) Duke University/Julian Hong 2017
+#GNU General Public License v2.0
+#Please see LICENSE and README.md 
+
 #meds.R
 #need to consoldiate the med rec and the prescriptions and pull systemic therapy information
 
@@ -14,7 +18,7 @@ rxmix <- read.delim("rxmix.text", header = FALSE, sep = "|", quote = "\"",
                     dec = ".", fill = TRUE, comment.char = "")
 
 #build the dictionary to both one med name and however many classes there are
-#original drug name is in the V4 column, recoded name is in V14, class is in V22 
+#original drug name is in the V4 column, recoded name is in V14, class is in V22
 library(dplyr)
 rxdict <- dplyr::select(rxmix, Medication.Name = V4, newname = V14, class = V22)
 
@@ -38,7 +42,7 @@ antineodict <- distinct(select(filter(patientmeds, grepl("Antineoplastic", class
 
 #manual modifications after physician review
 remove <- c("6-O-palmitoylascorbic acid", "azelaic acid", "Curcumin", "Dexamethasone", "Dexrazoxane", "Dexrazoxane hydrochloride",
-            "Dihematoporphyrin Ether", "Eflornithine", "enrofloxacin", "Grape Seed Extract", "mycophenolate mofetil", 
+            "Dihematoporphyrin Ether", "Eflornithine", "enrofloxacin", "Grape Seed Extract", "mycophenolate mofetil",
             "mycophenolate sodium", "Mycophenolic Acid", "Podofilox", "prednisolone", "Prednisone", "Resveratrol", "Sulindac")
 temp <- as.data.frame(antineodict$newname[! antineodict$newname %in% remove])
 rm(antineodict)
@@ -60,7 +64,7 @@ antineo <- filter(temp, is.element(temp$newname, antineodict$newname))
 
 #will call "concurrent" if there was an order that started within a month before and discontinued after start
 #and reasonable to assume planned if within the first two weeks
-antineo$concurrent <- (antineo$End.Date > antineo$start) & (antineo$Start.Date < antineo$start + 15) & 
+antineo$concurrent <- (antineo$End.Date > antineo$start) & (antineo$Start.Date < antineo$start + 15) &
   (antineo$Start.Date > antineo$start - 31)
 
 #we can make wide tables of the agent and the classes which would also simplify
@@ -95,13 +99,13 @@ wideconclass[is.na(wideconclass)] <- 0
 widerecclass[is.na(widerecclass)] <- 0
 
 #finish up by adding name prefixes
-names(wideconagent)[3:length(names(wideconagent))] <- 
+names(wideconagent)[3:length(names(wideconagent))] <-
   paste0("con_", names(wideconagent)[3:length(names(wideconagent))])
-names(widerecagent)[3:length(names(widerecagent))] <- 
+names(widerecagent)[3:length(names(widerecagent))] <-
   paste0("rec_", names(widerecagent)[3:length(names(widerecagent))])
-names(wideconclass)[3:length(names(wideconclass))] <- 
+names(wideconclass)[3:length(names(wideconclass))] <-
   paste0("con_", names(wideconclass)[3:length(names(wideconclass))])
-names(widerecclass)[3:length(names(widerecclass))] <- 
+names(widerecclass)[3:length(names(widerecclass))] <-
   paste0("rec_", names(widerecclass)[3:length(names(widerecclass))])
 
 #and let's make an any agent concurrent or recent table
@@ -137,7 +141,7 @@ recrxmixclasses[is.na(recrxmixclasses)] <- 0
 rm(temp) #cleanup
 
 #quick name prefix
-names(recrxmixclasses)[3:length(names(recrxmixclasses))] <- 
+names(recrxmixclasses)[3:length(names(recrxmixclasses))] <-
   paste0("rec_", names(recrxmixclasses)[3:length(names(recrxmixclasses))])
 
 ##now do the current meds
@@ -154,5 +158,5 @@ rxmixclasses <- spread(temp, class, taking)
 rxmixclasses[is.na(rxmixclasses)] <- 0
 rm(temp) #cleanup
 
-names(rxmixclasses)[3:length(names(rxmixclasses))] <- 
+names(rxmixclasses)[3:length(names(rxmixclasses))] <-
   paste0("cur_", names(rxmixclasses)[3:length(names(rxmixclasses))])

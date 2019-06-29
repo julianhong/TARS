@@ -1,9 +1,13 @@
+#Copyright (C) Duke University/Julian Hong 2017
+#GNU General Public License v2.0
+#Please see LICENSE and README.md 
+
 #model.R
 #generate LASSO, SVM, RF, and GTB models based on finaldata
 
 library(dplyr)
 
-modeldata<-select(ungroup(finalset), -c(Patient.Identifier, course, start, end, fx, dose, duration, Duke.MRN, 
+modeldata<-select(ungroup(finalset), -c(Patient.Identifier, course, start, end, fx, dose, duration, Duke.MRN,
                                Patient.Date.of.Birth, brachy, tbi)) #remove non-variables for model
 
 modeldata$admit <- as.factor(make.names(modeldata$admit))
@@ -287,8 +291,8 @@ library(tidyr)
 xgb_cv_tuned$evaluation_log %>%
   select(-contains("std")) %>%
   gather(TestOrTrain, AUC, -iter) %>%
-  ggplot(aes(x = iter, y = AUC, group = TestOrTrain, color = TestOrTrain)) + 
-  geom_line() + 
+  ggplot(aes(x = iter, y = AUC, group = TestOrTrain, color = TestOrTrain)) +
+  geom_line() +
   theme_bw()
 
 #view variable importance plot
@@ -388,7 +392,7 @@ set.seed(313)
 cancerxgb_tuned <- xgboost(data = cancerxgbtrain,
                      params = xgparams,
                      nrounds = 1000, # max number of trees to build
-                     verbose = TRUE,                                         
+                     verbose = TRUE,
                      print_every_n = 1,
                      early_stop_round = 10, # stop if no improvement within 10 trees
                      subsample=tunedsub, colsample_bytree=tunedcolsamp, max.depth = tunedmax.depth
@@ -433,7 +437,7 @@ plot(rocsvmtest, col="firebrick", lwd = 1, add=T) #red
 
 legend("bottomright", legend = c("GTB", "RF", "SVM"
                                  #, "GTB disease/treatment only"
-                                 ), 
+                                 ),
        col = c("dodgerblue2", "chartreuse4", "firebrick"
                #, "black"
                ),lwd = 2)
@@ -444,5 +448,5 @@ plot(rocgtbtest, main="Validation ROC curves", col = "dodgerblue2", lwd = 2, xax
 plot(cancerrocgtbtest, col="goldenrod", lwd = 2, add=T)
 plot(roclassotest, col="black", lwd = 2, add=T) #black
 
-legend("bottomright", legend = c("GTB", "GTB disease/treatment only", "LASSO"), 
+legend("bottomright", legend = c("GTB", "GTB disease/treatment only", "LASSO"),
        col = c("dodgerblue2", "goldenrod", "black"),lwd = 2)

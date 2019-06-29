@@ -1,3 +1,7 @@
+#Copyright (C) Duke University/Julian Hong 2017
+#GNU General Public License v2.0
+#Please see LICENSE and README.md 
+
 #admit.R
 #find admissions and ED visits in DEDUCE encounters data
 
@@ -9,7 +13,7 @@ encounter$ED.Arrival.Date <- as.Date(encounter$ED.Arrival.Date, "%m/%d/%Y %H:%M:
 
 #clean up so we have an admission table and an ED table
 #admissions have an admit date and time
-admissions <- filter(select(encounter, Patient.Identifier, Admit.Date, 
+admissions <- filter(select(encounter, Patient.Identifier, Admit.Date,
                      Total.Hospital.LOS.in.days, Discharge.Date, MS.DRG.Description), !is.na(Admit.Date))
 ed <- filter(select(encounter, Patient.Identifier, ED.Arrival.Date), !is.na(ED.Arrival.Date))
 
@@ -20,7 +24,7 @@ temp2 <- left_join(rttime, admissions, by = "Patient.Identifier") #rt course has
 #now determine if the admission was in the RT period; 1/0
 
 #11/5/17: mark this only as true if not a chemo admission (to eliminate planned admissions)
-temp2$admit <- 1* (temp2$Admit.Date > temp2$start & temp2$Admit.Date <= temp2$end & 
+temp2$admit <- 1* (temp2$Admit.Date > temp2$start & temp2$Admit.Date <= temp2$end &
                      !grepl("CHEMO", temp2$MS.DRG.Description)) #start counting at day 2
 
 #while we're here we can also pull the time to their last discharge
@@ -34,9 +38,9 @@ temp2$admitatstart[(temp2$start >= temp2$Admit.Date) & (temp2$start < temp2$Disc
 
 #calc out discharge during RT if admitted at start
 temp2$notdisch <- 0
-temp2$notdisch[temp2$admitatstart == 1] <- 1* !(temp2$Discharge.Date[temp2$admitatstart == 1] >= 
-                                                   temp2$start[temp2$admitatstart == 1] & 
-                                                   temp2$Discharge.Date[temp2$admitatstart == 1] < 
+temp2$notdisch[temp2$admitatstart == 1] <- 1* !(temp2$Discharge.Date[temp2$admitatstart == 1] >=
+                                                   temp2$start[temp2$admitatstart == 1] &
+                                                   temp2$Discharge.Date[temp2$admitatstart == 1] <
                                                    temp2$end[temp2$admitatstart == 1])
 
 #now calculate discharge from an admission within last year?
@@ -56,7 +60,7 @@ reasonforadmit <- temp
 
 #now consolidate for each course
 temp2 <- group_by(temp2, Patient.Identifier, course)
-modadmit <- summarize(temp2, admit = max(admit), lastadmit = as.numeric(min(daysprior, na.rm = TRUE)), 
+modadmit <- summarize(temp2, admit = max(admit), lastadmit = as.numeric(min(daysprior, na.rm = TRUE)),
                       admitatstart = max(admitatstart), notdisch = max(notdisch),
                       numyearadmit = sum(lastyear, na.rm = TRUE),
                       nummonthadmit = sum(lastmonth, na.rm = TRUE), daysyearadmit = sum(lastyrdays, na.rm = TRUE))
@@ -93,7 +97,7 @@ temp2$lastyear[temp2$daysprior < 366] <- 1
 
 #now consolidate for each course
 temp2 <- group_by(temp2, Patient.Identifier, course)
-moded <- summarize(temp2, ed = max(ed), lasted = as.numeric(min(daysprior, na.rm = TRUE)), 
+moded <- summarize(temp2, ed = max(ed), lasted = as.numeric(min(daysprior, na.rm = TRUE)),
                       nummonthed = sum(lastmonth, na.rm = TRUE), numyeared = sum(lastyear, na.rm = TRUE))
 
 #because of the join, fields can become NAs- let's set those to 0

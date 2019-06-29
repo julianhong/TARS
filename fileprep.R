@@ -1,3 +1,7 @@
+#Copyright (C) Duke University/Julian Hong 2017
+#GNU General Public License v2.0
+#Please see LICENSE and README.md 
+
 #fileprep.R
 #brings in RT files and DEDUCE files and preps them for everything else
 #first thing to run
@@ -31,9 +35,9 @@ patient <- distinct(bind_rows(patient20132014.csv, patient20152016.csv, patienta
 #verified no duplicates
 encounter <- encounter.csv
 #need to fix a 20+ to a number for smoking
-socialhistory.csv$Number.of.Years.Used.Tobacco[socialhistory.csv$Number.of.Years.Used.Tobacco == 
+socialhistory.csv$Number.of.Years.Used.Tobacco[socialhistory.csv$Number.of.Years.Used.Tobacco ==
                                                          "20+"] <- "20"
-socialhistory.csv$Number.of.Years.Used.Tobacco <- 
+socialhistory.csv$Number.of.Years.Used.Tobacco <-
   as.numeric(socialhistory.csv$Number.of.Years.Used.Tobacco)
 
 #cleanup is optional

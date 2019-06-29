@@ -1,3 +1,7 @@
+#Copyright (C) Duke University/Julian Hong 2017
+#GNU General Public License v2.0
+#Please see LICENSE and README.md 
+
 #vitals.R
 #will pull vitals data over the past year and convert into a categorical variable
 
@@ -6,7 +10,7 @@ library(dplyr)
 vitals <- vitals.csv
 
 #initialize; select appropriate vitals
-vitals <- select(vitals, Patient.Identifier, Date.Vitals.Taken, Diastolic.BP, Systolic.BP, Weight.in.Kilograms, 
+vitals <- select(vitals, Patient.Identifier, Date.Vitals.Taken, Diastolic.BP, Systolic.BP, Weight.in.Kilograms,
                  Body.Mass.Index, Temperature.in.Centigrade, Pulse.in.Beats.per.Minute, Pulse.Oximetry, Level.of.Pain)
 
 #convert the dates
@@ -29,8 +33,8 @@ relvitals <- group_by(relvitals, Patient.Identifier, course)
 #key here is be careful with plyr - make sure it's unloaded so dplyr is OK
 detach("package:plyr", unload=TRUE)
 
-relvitals <- summarize(relvitals, weightloss = (max(Weight.in.Kilograms, na.rm = TRUE) - 
-                     last(na.omit(Weight.in.Kilograms)))/max(Weight.in.Kilograms, na.rm = TRUE), 
+relvitals <- summarize(relvitals, weightloss = (max(Weight.in.Kilograms, na.rm = TRUE) -
+                     last(na.omit(Weight.in.Kilograms)))/max(Weight.in.Kilograms, na.rm = TRUE),
                      BMI = last(na.omit(Body.Mass.Index)),
                      minsbp = min(Systolic.BP, na.rm = TRUE),
                      mindbp = min(Diastolic.BP, na.rm = TRUE),
@@ -38,7 +42,7 @@ relvitals <- summarize(relvitals, weightloss = (max(Weight.in.Kilograms, na.rm =
                      maxdbp = max(Diastolic.BP, na.rm = TRUE),
                      minpulse = min(Pulse.in.Beats.per.Minute, na.rm = TRUE),
                      maxpulse = max(Pulse.in.Beats.per.Minute, na.rm = TRUE),
-                     minsat = min(Pulse.Oximetry, na.rm = TRUE), 
+                     minsat = min(Pulse.Oximetry, na.rm = TRUE),
                      maxtemp = max(Temperature.in.Centigrade, na.rm = TRUE),
                      maxpain = max(Level.of.Pain, na.rm = TRUE))
 

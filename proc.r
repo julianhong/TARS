@@ -1,3 +1,7 @@
+#Copyright (C) Duke University/Julian Hong 2017
+#GNU General Public License v2.0
+#Please see LICENSE and README.md 
+
 #proc.r
 #sort out procedures and generate a wide table for procedure history
 
@@ -30,5 +34,5 @@ wideprocicd[is.na(wideprocicd)] <- 0 #need to fill in the NAs
 
 rm(temp) #cleanup
 
-names(wideprocicd)[3:length(names(wideprocicd))] <- 
+names(wideprocicd)[3:length(names(wideprocicd))] <-
   paste0("proc_", names(wideprocicd)[3:length(names(wideprocicd))])

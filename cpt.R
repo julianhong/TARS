@@ -1,3 +1,7 @@
+#Copyright (C) Duke University/Julian Hong 2017
+#GNU General Public License v2.0
+#Please see LICENSE and README.md 
+
 #cpt.r
 #import cpt codes
 
@@ -29,5 +33,5 @@ widecpt <- spread(widecpt, CPT.Short.Description, present)
 widecpt[is.na(widecpt)] <- 0 #need to fill in the NAs
 
 
-names(widecpt)[3:length(names(widecpt))] <- 
+names(widecpt)[3:length(names(widecpt))] <-
   paste0("cpt_", names(widecpt)[3:length(names(widecpt))])
