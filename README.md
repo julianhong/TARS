@@ -1,4 +1,5 @@
-# TARS
+# Toxicity Anticipation During Radiation and Systemic Therapy
+# System for High-Intensity Evaluation During Radiation Therapy (SHIELD-RT)
 
 NOT FOR CLINICAL USE
 
